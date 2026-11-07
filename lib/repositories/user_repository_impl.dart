@@ -1,26 +1,15 @@
-import '../models/user.dart';
+import '../models/post.dart';
 import '../services/api_service.dart';
-import 'user_repository.dart';
+import 'post_repository.dart';
 
-/// Implementasi konkret dari [UserRepository].
-///
-/// Class ini menggunakan [ApiService] untuk mengambil data dari API.
-class UserRepositoryImpl implements UserRepository {
+class PostRepositoryImpl implements PostRepository {
   final ApiService _apiService;
-  UserRepositoryImpl({ApiService? apiService})
+
+  PostRepositoryImpl({ApiService? apiService})
     : _apiService = apiService ?? ApiService();
-  @override
-  Future<List<User>> getUsers() async {
-    return await _apiService.getUsers();
-  }
 
   @override
-  Future<User> getUserById(int id) async {
-    return await _apiService.getUserById(id);
-  }
-
-  /// Menutup resource yang digunakan.
-  void dispose() {
-    _apiService.dispose();
+  Future<List<Post>> getPosts() async {
+    return await _apiService.getPosts();
   }
 }

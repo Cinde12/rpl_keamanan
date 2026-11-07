@@ -1,31 +1,18 @@
-/// Kumpulan fungsi validasi dan sanitasi input.
-///
-/// Class ini menyediakan method statis untuk memvalidasi input
-/// pengguna dan membersihkan karakter berbahaya.
 class Validators {
-  /// Memvalidasi format email.
-  ///
-  /// Mengembalikan `true` jika [email] memiliki format yang valid.
   static bool isValidEmail(String email) {
     final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     return regex.hasMatch(email);
   }
 
-  /// Memvalidasi bahwa [value] tidak kosong.
   static bool isNotEmpty(String? value) {
     return value != null && value.trim().isNotEmpty;
   }
 
-  /// Memvalidasi panjang [value] antara [min] dan [max].
   static bool hasValidLength(String value, {int min = 1, int max = 100}) {
     final length = value.trim().length;
     return length >= min && length <= max;
   }
 
-  /// Membersihkan input dari karakter berbahaya.
-  ///
-  /// Mengganti karakter `<`, `>`, `"`, dan `'` dengan HTML entities
-  /// untuk mencegah XSS.
   static String sanitize(String input) {
     return input
         .replaceAll('&', '&amp;')
@@ -36,9 +23,6 @@ class Validators {
         .trim();
   }
 
-  /// Memvalidasi dan membersihkan input teks.
-  ///
-  /// Mengembalikan pesan error jika tidak valid, atau `null` jika valid.
   static String? validateText(
     String? value, {
     String fieldName = 'Field',
@@ -54,13 +38,58 @@ class Validators {
     return null;
   }
 
-  /// Memvalidasi dan membersihkan email.
   static String? validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Email tidak boleh kosong';
     }
     if (!isValidEmail(value.trim())) {
       return 'Format email tidak valid';
+    }
+    return null;
+  }
+
+  /// Tambahan Latihan 3: Validasi nomor telepon
+  static String? validatePhone(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Nomor telepon tidak boleh kosong';
+    }
+    final regex = RegExp(r'^[0-9]{10,13}$');
+    if (!regex.hasMatch(value.trim())) {
+      return 'Nomor telepon harus berupa 10-13 digit angka';
+    }
+    return null;
+  }
+
+  /// Tambahan Latihan 3: Validasi URL[cite: 18]
+  static String? validateUrl(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'URL tidak boleh kosong';
+    }
+    final regex = RegExp(
+      r'^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$',
+    );
+    if (!regex.hasMatch(value.trim())) {
+      return 'URL tidak valid (harus diawali http:// atau https://)';
+    }
+    return null;
+  }
+
+  /// Tambahan Latihan 3: Validasi password[cite: 18]
+  static String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password tidak boleh kosong';
+    }
+    if (value.length < 8) {
+      return 'Password minimal 8 karakter';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password harus mengandung minimal 1 huruf kapital';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password harus mengandung minimal 1 angka';
+    }
+    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+      return 'Password harus mengandung minimal 1 karakter simbol';
     }
     return null;
   }

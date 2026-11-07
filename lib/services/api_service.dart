@@ -5,12 +5,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../config/app_config.dart';
+import '../models/post.dart';
 import '../models/user.dart';
 
-/// Service untuk komunikasi HTTP dengan REST API.
-///
-/// Class ini menangani semua request HTTP ke API, termasuk
-/// penanganan error dan timeout.
 class ApiService {
   final http.Client _client;
   final String _baseUrl;
@@ -19,10 +16,6 @@ class ApiService {
     : _client = client ?? http.Client(),
       _baseUrl = baseUrl ?? AppConfig.baseUrl;
 
-  /// Mengambil daftar pengguna dari API.
-  ///
-  /// Mengembalikan [List<User>] jika berhasil.
-  /// Melempar [Exception] dengan pesan yang ramah pengguna jika gagal.
   Future<List<User>> getUsers() async {
     try {
       _logRequest('GET', '/users');
@@ -42,14 +35,11 @@ class ApiService {
       throw Exception('Request timeout. Periksa koneksi internet Anda.');
     } on SocketException {
       throw Exception('Tidak ada koneksi internet. Periksa jaringan Anda.');
-    } on FormatException {
-      throw Exception('Format data tidak valid.');
     } catch (e) {
       throw Exception('Terjadi kesalahan: $e');
     }
   }
 
-  /// Mengambil pengguna berdasarkan [id].
   Future<User> getUserById(int id) async {
     try {
       _logRequest('GET', '/users/$id');
@@ -74,24 +64,43 @@ class ApiService {
     }
   }
 
-  /// Membangun header untuk request HTTP.
-  ///
-  /// Menyertakan API key dari konfigurasi (tidak di-hardcode).
+  /// Method baru untuk Latihan 1[cite: 17]
+  Future<List<Post>> getPosts() async {
+    try {
+      _logRequest('GET', '/posts');
+      final response = await _client
+          .get(Uri.parse('$_baseUrl/posts'), headers: _buildHeaders())
+          .timeout(Duration(seconds: AppConfig.timeoutSeconds));
+
+      _logResponse(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Post.fromJson(json)).toList();
+      } else {
+        throw Exception('Gagal memuat post. Status: ${response.statusCode}');
+      }
+    } on TimeoutException {
+      throw Exception('Request timeout. Periksa koneksi internet Anda.');
+    } on SocketException {
+      throw Exception('Tidak ada koneksi internet. Periksa jaringan Anda.');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan: $e');
+    }
+  }
+
   Map<String, String> _buildHeaders() {
     return {'Content-Type': 'application/json', 'X-API-Key': AppConfig.apiKey};
   }
 
-  /// Logging request yang aman (tidak mencetak token/API key).
   void _logRequest(String method, String endpoint) {
     print('[$method] $endpoint');
   }
 
-  /// Logging response yang aman (hanya status code).
   void _logResponse(int statusCode) {
     print('Response status: $statusCode');
   }
 
-  /// Menutup client.
   void dispose() {
     _client.close();
   }
