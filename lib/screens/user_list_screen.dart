@@ -2,16 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
-import '../repositories/user_repository_impl.dart';
+import '../repositories/user_repository_impl.dart'; // <- Pastikan baris import ini ada!
 import '../widgets/user_card.dart';
 
-/// Halaman untuk menampilkan daftar pengguna.
-///
-/// Halaman ini menggunakan [UserRepository] untuk mengambil data,
-/// sehingga UI tidak bergantung langsung pada [ApiService].
 class UserListScreen extends StatefulWidget {
   final UserRepository? repository;
+
   const UserListScreen({super.key, this.repository});
+
   @override
   State<UserListScreen> createState() => _UserListScreenState();
 }
@@ -21,6 +19,7 @@ class _UserListScreenState extends State<UserListScreen> {
   List<User> _users = [];
   bool _isLoading = true;
   String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +32,7 @@ class _UserListScreenState extends State<UserListScreen> {
       _isLoading = true;
       _errorMessage = null;
     });
+
     try {
       final users = await _repository.getUsers();
       setState(() {
@@ -79,6 +79,7 @@ class _UserListScreenState extends State<UserListScreen> {
         ),
       );
     }
+
     if (_errorMessage != null) {
       return Center(
         child: Padding(
@@ -109,9 +110,11 @@ class _UserListScreenState extends State<UserListScreen> {
         ),
       );
     }
+
     if (_users.isEmpty) {
       return const Center(child: Text('Tidak ada data pengguna'));
     }
+
     return RefreshIndicator(
       onRefresh: _loadUsers,
       child: ListView.builder(
